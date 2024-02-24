@@ -21,6 +21,18 @@ import EmployeeSortie from './Components/EmployeeSortie'
 import EmployeeDemandeSortie from './Components/EmployeeDemandeSortie'
 import SurveyQuestion from './Components/SurveyQuestion'
 import WorkTimeTracking from './Components/WorkTimeTracking'
+import Project from './Components/Project'
+import ProjectsList from './Components/ProjectsList'
+import AddTask from './Components/AddTask'
+import TaskList from './Components/TaskList'
+import ManagerLogin from './Components/ManagerLogin'
+import ManagerDashboard from './Components/ManagerDashboard'
+import Manager from './Components/Manager'
+import AddManager from './Components/AddManager'
+import Leader from './Components/Leader'
+import AddLeader from './Components/AddLeader'
+import LeaderLogin from './Components/LeaderLogin'
+import LeaderDashboard from './Components/LeaderDashboard'
 
 function App() {
   return (
@@ -29,7 +41,14 @@ function App() {
       <Route path='/' element={<Start />}></Route>
       <Route path='/adminlogin' element={<Login />}></Route>
       <Route path='/employee_login' element={<EmployeeLogin />} />
-
+      <Route path='/manager_login' element={<ManagerLogin />} />
+      <Route path='/managerdashboard/:id/*' element={<ManagerDashboard />} />
+      <Route path='/leader_login' element={<LeaderLogin />} />
+      <Route path='/leaderdashboard/:id/*' element={<LeaderDashboard />} />
+      <Route path='/dashboard/project' element={<Project />}></Route>
+       <Route path='/dashboard/taskList' element={<TaskList />}> /</Route>
+        <Route path='/dashboard/add_task' element={<AddTask />} />
+        <Route path='/dashboard/projectList' element={<ProjectsList />}></Route>
     <Route path='/employeedashboard/:id' element={<PrivateRoute><EmployeeDashboard /></PrivateRoute>}>
   <Route path='/employeedashboard/:id/employee_detail/:id' element={<EmployeeDetail />} />
   <Route path='/employeedashboard/:id/employee_conge/:id' element={<EmployeeConge />} />
@@ -38,12 +57,8 @@ function App() {
   <Route path='/employeedashboard/:id/employee_surveyquestion/:questionId' element={<SurveyQuestion />} />
   <Route path='/employeedashboard/:id/employee_demande_conge' element={<Employeedemandeconge />} /> 
   <Route path='/employeedashboard/:id/employee_demande_sortie' element={<EmployeeDemandeSortie />} /> 
-
-
+  
 </Route>
-
-
-
 
       <Route path='/dashboard' element={
         <PrivateRoute >
@@ -53,10 +68,17 @@ function App() {
         <Route path='' element={<Home />}></Route>
         <Route path='/dashboard/employee' element={<Employee />}></Route>
         <Route path='/dashboard/category' element={<Category />}></Route>
+       
         <Route path='/dashboard/profile' element={<Profile />}></Route>
         <Route path='/dashboard/add_category' element={<AddCategory />}></Route>
+   
+    
         <Route path='/dashboard/add_employee' element={<AddEmployee />}></Route>
         <Route path='/dashboard/edit_employee/:id' element={<EditEmployee />}></Route>
+        <Route path='/dashboard/manager' element={<Manager />}></Route>
+        <Route path='/dashboard/add_manager' element={<AddManager />}></Route>
+        <Route path='/dashboard/leader' element={<Leader />}></Route>
+        <Route path='/dashboard/add_leader' element={<AddLeader />}></Route>
       </Route>
 
      

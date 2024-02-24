@@ -87,6 +87,84 @@ router.get('/employee', (req, res) => {
     })
 })
 
+router.post('/add_leader', (req, res) => {
+    const { name, email, password } = req.body;
+    
+    // Vérification que les champs ne sont pas vides
+    if (!name || !email || !password) {
+        return res.status(400).json({Status: false, Error: "All fields are required"});
+    }
+// Définition de la requête SQL avec des placeholders pour les valeurs
+const sql = `INSERT INTO leader (name, email, password) VALUES (?, ?, ?)`;
+
+// Préparation des valeurs à insérer, incluant le mot de passe en clair (non hashé)
+const values = [
+    req.body.name,
+    req.body.email,
+    req.body.password, // Ici, le mot de passe n'est pas hashé
+];
+
+// Exécution de la requête SQL
+con.query(sql, values, (err, result) => { // Correction ici: utilisation de "values" directement
+    // Gestion de l'erreur de la requête SQL
+    if(err) {
+        console.error("SQL Error:", err.message); // Log de l'erreur SQL pour le débogage
+        return res.json({Status: false, Error: "SQL Error"});
+    }
+    // Réponse en cas de succès
+    return res.json({Status: true});
+});
+});
+
+
+router.post('/add_manager', (req, res) => {
+    const { name, email, password } = req.body;
+    
+    // Vérification que les champs ne sont pas vides
+    if (!name || !email || !password) {
+        return res.status(400).json({Status: false, Error: "All fields are required"});
+    }
+// Définition de la requête SQL avec des placeholders pour les valeurs
+const sql = `INSERT INTO manager (name, email, password) VALUES (?, ?, ?)`;
+
+// Préparation des valeurs à insérer, incluant le mot de passe en clair (non hashé)
+const values = [
+    req.body.name,
+    req.body.email,
+    req.body.password, // Ici, le mot de passe n'est pas hashé
+];
+
+// Exécution de la requête SQL
+con.query(sql, values, (err, result) => { // Correction ici: utilisation de "values" directement
+    // Gestion de l'erreur de la requête SQL
+    if(err) {
+        console.error("SQL Error:", err.message); // Log de l'erreur SQL pour le débogage
+        return res.json({Status: false, Error: "SQL Error"});
+    }
+    // Réponse en cas de succès
+    return res.json({Status: true});
+});
+});
+
+
+
+
+router.get('/manager', (req, res) => {
+const sql = "SELECT * FROM manager";
+con.query(sql, (err, result) => {
+    if(err) return res.json({Status: false, Error: "Query Error"})
+    return res.json({Status: true, Result: result})
+})
+})
+router.get('/leader', (req, res) => {
+    const sql = "SELECT * FROM  leader";
+    con.query(sql, (err, result) => {
+        if(err) return res.json({Status: false, Error: "Query Error"})
+        return res.json({Status: true, Result: result})
+    })
+    })
+
+
 router.get('/employee/:id', (req, res) => {
     const id = req.params.id;
     const sql = "SELECT * FROM employee Where id = ?";
@@ -164,6 +242,7 @@ router.get('/logout', (req, res) => {
         return res.status(500).json({ Status: false, Error: "Internal Server Error" });
     }
 });
+
 
 
 
