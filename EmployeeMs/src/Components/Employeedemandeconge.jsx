@@ -30,7 +30,7 @@ const Employeedemandeconge = () => {
   const calculateDuree = () => {
     const dateDebut = new Date(formData.date_debut);
     const dateFin = new Date(formData.date_fin);
-    const duree = Math.ceil((dateFin - dateDebut) / (1000 * 60 * 60 * 24));
+    const duree = Math.ceil((dateFin - dateDebut + 1) / (1000 * 60 * 60 * 24));
     return duree;
   };
 

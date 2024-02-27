@@ -29,7 +29,7 @@ const TaskList = () => {
     return (
         <div className="container mt-5">
             <h2>Tasks List</h2>
-            <Link to="/dashboard/add_task" className="btn btn-success mb-3">Add Task</Link>
+            <Link to="add_task" className="btn btn-success mb-3">Add Task</Link>
             <div className="table-responsive">
                 <table className="table table-hover">
                     <thead className="table-dark">

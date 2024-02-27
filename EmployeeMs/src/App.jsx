@@ -33,6 +33,10 @@ import Leader from './Components/Leader'
 import AddLeader from './Components/AddLeader'
 import LeaderLogin from './Components/LeaderLogin'
 import LeaderDashboard from './Components/LeaderDashboard'
+import CongesLeader from './Components/CongesLeader'
+import EditLeaderConge from './Components/EditLeaderConge'
+import SortiesLeader from './Components/SortiesLeader'
+import EditLeaderSortie from './Components/EditLeaderSortie'
 
 function App() {
   return (
@@ -42,14 +46,26 @@ function App() {
       <Route path='/adminlogin' element={<Login />}></Route>
       <Route path='/employee_login' element={<EmployeeLogin />} />
       <Route path='/manager_login' element={<ManagerLogin />} />
-      <Route path='/managerdashboard/:id/*' element={<ManagerDashboard />} />
       <Route path='/leader_login' element={<LeaderLogin />} />
-      <Route path='/leaderdashboard/:id/*' element={<LeaderDashboard />} />
-      <Route path='/dashboard/project' element={<Project />}></Route>
-       <Route path='/dashboard/taskList' element={<TaskList />}> /</Route>
-        <Route path='/dashboard/add_task' element={<AddTask />} />
-        <Route path='/dashboard/projectList' element={<ProjectsList />}></Route>
-    <Route path='/employeedashboard/:id' element={<PrivateRoute><EmployeeDashboard /></PrivateRoute>}>
+
+      <Route path='/managerdashboard/:id/*' element={<ManagerDashboard />} />
+
+  <Route path='/leaderdashboard/:id/*' element={<LeaderDashboard />}>
+  <Route path='project' element={<Project />} />
+  <Route path='taskList' element={<TaskList />} />
+  <Route path='add_task' element={<AddTask />} />
+  <Route path='projectList' element={<ProjectsList />} />
+  <Route path='conges' element={<CongesLeader />} />
+  <Route path='sorties' element={<SortiesLeader />} />
+  <Route path="conges/editleaderconge/:id" element={<EditLeaderConge />} />
+  <Route path="sorties/editleadersortie/:id" element={<EditLeaderSortie />} />
+
+
+</Route>
+
+
+
+  <Route path='/employeedashboard/:id' element={<PrivateRoute><EmployeeDashboard /></PrivateRoute>}>
   <Route path='/employeedashboard/:id/employee_detail/:id' element={<EmployeeDetail />} />
   <Route path='/employeedashboard/:id/employee_conge/:id' element={<EmployeeConge />} />
   <Route path='/employeedashboard/:id/employee_sortie/:id' element={<EmployeeSortie />} />
