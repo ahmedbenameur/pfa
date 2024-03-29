@@ -51,6 +51,16 @@ const ManagerDashboard = () => {
                   <span className="ms-2 d-none d-sm-inline">Logout</span>
                 </Link>
               </li>
+
+               <li>
+              <Link to='/managerdashboard/productivité'
+                  className="nav-link px-0 align-middle text-white"
+                >
+                  <i className=""></i>
+
+                  <span className="ms-2 d-none d-sm-inline">Productivité</span>
+                </Link>
+                </li>
             </ul>
           </div>
         </div>

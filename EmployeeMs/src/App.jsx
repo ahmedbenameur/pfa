@@ -37,6 +37,12 @@ import CongesLeader from './Components/CongesLeader'
 import EditLeaderConge from './Components/EditLeaderConge'
 import SortiesLeader from './Components/SortiesLeader'
 import EditLeaderSortie from './Components/EditLeaderSortie'
+import TasksVisualization from './Components/TasksVisualization'
+import Productivité from './Components/Productivité'
+import TaskEmployee from './Components/TaskEmployee'
+import LeavesCalendar from './Components/LeavesCalendar'
+
+
 
 function App() {
   return (
@@ -48,20 +54,26 @@ function App() {
       <Route path='/manager_login' element={<ManagerLogin />} />
       <Route path='/leader_login' element={<LeaderLogin />} />
 
-      <Route path='/managerdashboard/:id/*' element={<ManagerDashboard />} />
+      <Route path='/managerdashboard/*' element={<ManagerDashboard />} >
+        <Route path='productivité' element= {< Productivité/>}></Route>
+        </Route>
+        
 
-  <Route path='/leaderdashboard/:id/*' element={<LeaderDashboard />}>
+  <Route path='/leaderdashboard/*' element={<LeaderDashboard />}  >
   <Route path='project' element={<Project />} />
-  <Route path='taskList' element={<TaskList />} />
   <Route path='add_task' element={<AddTask />} />
   <Route path='projectList' element={<ProjectsList />} />
+  <Route path='taskList' element={<TaskList />} />
+  <Route path='task_visualisation' element={< TasksVisualization/>} />
+  <Route path="conges/leaves-calendar"    element={< LeavesCalendar />} />
   <Route path='conges' element={<CongesLeader />} />
   <Route path='sorties' element={<SortiesLeader />} />
   <Route path="conges/editleaderconge/:id" element={<EditLeaderConge />} />
   <Route path="sorties/editleadersortie/:id" element={<EditLeaderSortie />} />
-
-
 </Route>
+
+
+
 
 
 
@@ -73,6 +85,7 @@ function App() {
   <Route path='/employeedashboard/:id/employee_surveyquestion/:questionId' element={<SurveyQuestion />} />
   <Route path='/employeedashboard/:id/employee_demande_conge' element={<Employeedemandeconge />} /> 
   <Route path='/employeedashboard/:id/employee_demande_sortie' element={<EmployeeDemandeSortie />} /> 
+  <Route path='/employeedashboard/:id/employee_task/:employeeID' element={<TaskEmployee/>} /> 
   
 </Route>
 

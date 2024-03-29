@@ -40,7 +40,7 @@ const EditLeaderConge = () => {
       <h2>Edit Leader Conge</h2>
       <p>Conge ID: {id}</p>
       {isLoading ? (
-        <p>Chargement en cours...</p>
+        <p>loading...</p>
       ) : (
         <>
           <p className={`status-label ${status.toLowerCase()}`}>Current Status: {status}</p>
@@ -53,7 +53,7 @@ const EditLeaderConge = () => {
             </button>
           </div>
           <Link to="../conges" className="back-link">
-            Retour à la page CongesLeader
+            Return
           </Link>
         </>
       )}

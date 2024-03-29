@@ -38,7 +38,7 @@ const LeaderDashboard = () => {
             >
               <li className="w-100">
                 <Link
-                  to={`/leaderdashboard/${leaderId}`}
+                  to={`/leaderdashboard/`}
                   className="nav-link text-white px-0 align-middle"
                 >
                   <i className="fs-4 bi-speedometer2 ms-2"></i>
@@ -72,7 +72,7 @@ const LeaderDashboard = () => {
                   className="nav-link px-0 align-middle text-white"
                 >
                   <i className="bi bi-calendar-event fs-4"></i>
-                  <span className="ms-2 d-none d-sm-inline">Congés</span>
+                  <span className="ms-2 d-none d-sm-inline">leave</span>
                 </Link>
               </li>
               <li className="w-100">

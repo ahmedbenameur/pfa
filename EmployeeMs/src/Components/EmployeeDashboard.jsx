@@ -53,7 +53,7 @@ const EmployeeDashboard = () => {
                   className="nav-link px-0 align-middle text-white"
                 >
                   <i className="fs-4 bi-calendar-check ms-2"></i>
-                  <span className="ms-2 d-none d-sm-inline">Conges</span>
+                  <span className="ms-2 d-none d-sm-inline">leave</span>
                 </Link>
                 <Link
                   to={`employee_sortie/${employeeId}`}
@@ -76,6 +76,15 @@ const EmployeeDashboard = () => {
                   <i className="fs-4 bi-bar-chart-line ms-2"></i>
                   <span className="ms-2 d-none d-sm-inline">
                     Survey Questions
+                  </span>
+                </Link>
+                <Link
+                  to={`/employeedashboard/${employeeId}/employee_task/${employeeId}`}
+                  className="nav-link px-0 align-middle text-white"
+                >
+                  <i className="fs-4 bi-bar-chart-line ms-2"></i>
+                  <span className="ms-2 d-none d-sm-inline">
+                    Project Tasks
                   </span>
                 </Link>
               </li>

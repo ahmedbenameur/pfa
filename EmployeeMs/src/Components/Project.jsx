@@ -13,7 +13,7 @@ const Project = () => {
     axios.post('http://localhost:3000/leader/projects', {projects})
     .then(result => {
         if (result.data.Status) {
-            navigate('projectList'); // Maintenant, cela fonctionnera correctement
+            navigate('/leaderdashboard/projectList'); // Maintenant, cela fonctionnera correctement
         } else {
             alert(result.data.Error)
         }

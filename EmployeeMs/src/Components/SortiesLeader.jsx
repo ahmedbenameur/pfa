@@ -31,13 +31,13 @@ const SortiesLeader = () => {
 
   return (
     <div className="container mt-5 sorties-leader-container">
-      <h2>Sorties du Leader</h2>
+      <h2>Employee Exits</h2>
       <div className="table-responsive">
         <table className="table table-hover">
           <thead className="table-dark">
             <tr>
               <th scope="col">ID</th>
-              <th scope="col">Employee ID</th>
+              <th scope="col">Employee name </th>
               <th scope="col">Date</th>
               <th scope="col">Start Time</th>
               <th scope="col">End Time</th>
@@ -52,7 +52,7 @@ const SortiesLeader = () => {
               sorties.map((sortie) => (
                 <tr key={sortie.id}>
                   <td>{sortie.id}</td>
-                  <td>{sortie.employee_id}</td>
+                  <td>{sortie.employee_name}</td>
                   <td>{formatDate(sortie.date)}</td>
                   <td>{sortie.heure_debut}</td>
                   <td>{sortie.heure_fin}</td>

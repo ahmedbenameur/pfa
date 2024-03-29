@@ -85,6 +85,41 @@ router.get("/conges/:employee_id", (req, res) => {
     res.status(500).json({ success: false, message: "Erreur lors de la récupération des congés de l'employé." });
   }
 });
+  
+// Ajout d'une route pour récupérer le solde de congé de tous les employés
+
+router.get('/employee-conge-solde/:employee_id', (req, res) => {
+  const { employee_id } = req.params;
+
+  // La requête sélectionne la somme de `duree` pour les congés acceptés seulement, groupés par `type`.
+  const sql = `
+    SELECT type, SUM(duree) AS total
+    FROM conges
+    WHERE employee_id = ? AND statut = 'accepted'
+    GROUP BY type
+  `;
+
+  con.query(sql, [employee_id], (err, results) => {
+      if (err) {
+          console.error("Erreur lors de la récupération du solde de congé :", err);
+          return res.status(500).json({ success: false, message: "Erreur lors de la récupération du solde de congé." });
+      }
+
+      // Initialisation des totaux à 24 pour chaque type de congé.
+      let soldeMaladie = 24;
+      let soldeAnnuelle = 24;
+
+      // Soustrait les jours de congé utilisés (acceptés) du total initial.
+      results.forEach(row => {
+        if (row.type === 'Sick') soldeMaladie -= row.total; // Décrémente le solde de maladie
+        else if (row.type === 'Annuel') soldeAnnuelle -= row.total; // Décrémente le solde annuel
+      });
+
+      // Renvoie les soldes calculés au client
+      res.json({ success: true, data: { soldeMaladie, soldeAnnuelle } });
+  });
+});
+
 
 router.post("/demande-sortie", async (req, res) => {
   try {
@@ -176,10 +211,40 @@ router.post('/submit-survey', async (req, res) => {
 });
 
 
-
-
-
-
-
-
+router.get('/tasks/:employeeID', async (req, res) => {
+  const { employeeID } = req.params;
+  try {
+    const sql = 'SELECT * FROM task WHERE employeeID = ?';
+    con.query(sql, [employeeID], (err, result) => {
+      if (err) {
+        console.error('Erreur lors de la récupération des tâches:', err);
+        return res.status(500).json({ success: false, message: "Erreur lors de la récupération des tâches." });
+      }
+      res.json({ success: true, Result: result });
+    });
+  } catch (error) {
+    console.error('Erreur serveur lors de la récupération des tâches:', error);
+    res.status(500).json({ success: false, message: "Erreur serveur lors de la récupération des tâches." });
+  }
+});
+router.put('/tasks/:taskId/status', async (req, res) => {
+  const { taskId } = req.params;
+  const { status } = req.body;
+  try {
+    const sql = 'UPDATE task SET status = ? WHERE id = ?';
+    con.query(sql, [status, taskId], (err, result) => {
+      if (err) {
+        console.error('Erreur lors de la mise à jour du statut de la tâche:', err);
+        return res.status(500).json({ success: false, message: "Erreur lors de la mise à jour du statut de la tâche." });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: "Tâche non trouvée." });
+      }
+      res.json({ success: true, message: "Statut de la tâche mis à jour avec succès." });
+    });
+  } catch (error) {
+    console.error('Erreur serveur lors de la mise à jour du statut de la tâche:', error);
+    res.status(500).json({ success: false, message: "Erreur serveur lors de la mise à jour du statut de la tâche." });
+  }
+});
   export {router as EmployeeRouter}

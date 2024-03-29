@@ -23,7 +23,7 @@ const ProjectsList = () => {
             <div className='d-flex justify-content-center'>
                 <h3>Category List</h3>
             </div>
-            <Link to="project" className='btn btn-success'>Add Project</Link> 
+            <Link to= '/leaderdashboard/project' className='btn btn-success'>Add Project</Link> 
            
             <div className='mt-3'>
                 <table className='table'>

@@ -1,0 +1,47 @@
+.taskItem.pending {
+  background-color: #f0ad4e; /* Bootstrap's warning color for Pending */
+}
+
+.taskItem.inprogress {
+  background-color: #5bc0de; /* Bootstrap's info color for In progress */
+}
+
+.taskItem.completed {
+  background-color: #5cb85c; /* Bootstrap's success color for Completed */
+}
+
+/* Existing styles */
+.taskList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.taskItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.saveButton {
+  background-color: #4c7faf; /* Green background */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.saveButton:hover {
+  background-color: #4c7faf; /* Darker green */
+}
+
+
+.statusSelect {
+  margin-left: 10px;
+}

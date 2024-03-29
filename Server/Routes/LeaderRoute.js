@@ -115,12 +115,24 @@ router.delete('/delete_task/:id', (req, res) => {
 
 
 router.get('/conges', (req, res) => {
-    const sql = "SELECT * FROM conges";
+    // La requête SQL modifiée pour inclure une jointure avec la table 'employee'
+    // On suppose que 'employee_id' est la clé étrangère dans 'conges' qui fait référence à 'id' dans 'employee'
+    // On sélectionne 'employee_name' (ajustez le nom de ce champ selon votre base de données) et d'autres champs nécessaires de 'conges'
+    const sql = `
+        SELECT conges.id, employee.name AS employee_name, conges.date_debut, conges.date_fin, conges.statut, conges.created_at, conges.duree, conges.type 
+        FROM conges 
+        JOIN employee ON conges.employee_id = employee.id
+    `;
+
     con.query(sql, (err, result) => {
-        if(err) return res.json({Status: false, Error: "Query Error"})
-        return res.json({Status: true, Result: result})
-    })
-})
+        if(err) {
+            console.error("Error executing query: ", err);
+            return res.json({Status: false, Error: "Query Error"});
+        }
+        return res.json({Status: true, Result: result});
+    });
+});
+
 
 // Endpoint pour récupérer le statut du congé par ID
 router.get('/conges/:id', (req, res) => {
@@ -165,12 +177,39 @@ router.put('/update_conge_status/:id', async (req, res) => {
 
 
   router.get('/sorties', (req, res) => {
-    const sql = "SELECT * FROM sorties";
+    // Assurez-vous que les noms des tables et des colonnes correspondent à ceux de votre base de données
+    const sql = `
+        SELECT sorties.id, employee.name AS employee_name, sorties.date, sorties.heure_debut, sorties.heure_fin, sorties.duree, sorties.description, sorties.status 
+        FROM sorties
+        JOIN employee ON sorties.employee_id = employee.id
+    `;
     con.query(sql, (err, result) => {
-        if(err) return res.json({Status: false, Error: "Query Error"})
-        return res.json({Status: true, Result: result})
-    })
-})
+        if (err) {
+            console.error("Query Error:", err);
+            return res.json({ Status: false, Error: "Query Error" });
+        }
+        return res.json({ Status: true, Result: result });
+    });
+});
+
+
+router.get('/sorties', (req, res) => {
+    // Assurez-vous que les noms des tables et des colonnes correspondent à ceux de votre base de données
+    const sql = `
+        SELECT sorties.id, employee.name AS employee_name, sorties.date, sorties.heure_debut, sorties.heure_fin, sorties.duree, sorties.description, sorties.status 
+        FROM sorties
+        JOIN employee ON sorties.employee_id = employee.id
+    `;
+    con.query(sql, (err, result) => {
+        if (err) {
+            console.error("Query Error:", err);
+            return res.json({ Status: false, Error: "Query Error" });
+        }
+        return res.json({ Status: true, Result: result });
+    });
+});
+
+
 
 // Endpoint pour récupérer le statut du congé par ID
 router.get('/sorties/:id', (req, res) => {
@@ -214,6 +253,43 @@ router.put('/update_sortie_status/:id', async (req, res) => {
       res.json({ Status: true, Result: { id, status } });
     });
   });
+  
+  router.get('/leaveCalendar', (req, res) => {
+    const { employee_id, month, year } = req.query;
+
+    // Modifiez la requête SQL pour inclure une jointure avec la table employees
+    let sql = `
+        SELECT conges.*, employee.name AS employee_name
+        FROM conges
+        INNER JOIN employee ON conges.employee_id = employee.id
+    `;
+
+    let conditions = [];
+    let values = [];
+
+    if (employee_id) {
+        conditions.push(`conges.employee_id = ?`);
+        values.push(employee_id);
+    }
+
+    if (month && year) {
+        conditions.push(`MONTH(conges.startDate) = ? AND YEAR(conges.startDate) = ?`);
+        values.push(month, year);
+    }
+
+    if (conditions.length > 0) {
+        sql += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    con.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Erreur lors de la récupération du calendrier de congés:', err);
+            return res.status(500).json({ Status: false, Error: "Query Error" });
+        }
+        res.json({ Status: true, Result: result });
+    });
+});
+
   
 
   export {router as LeaderRouter}

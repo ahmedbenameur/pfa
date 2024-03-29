@@ -23,7 +23,7 @@ const Employeedemandeconge = () => {
   const handleCheckboxChange = (e) => {
     setFormData({
       ...formData,
-      type: e.target.checked ? 'annuel' : 'maladie',
+      type: e.target.checked ? 'Annuel' : 'Sick',
     });
   };
 
@@ -76,11 +76,11 @@ const Employeedemandeconge = () => {
       <label>Leave Type:</label>
       <div className="radio-container">
         <label>
-          <input type="radio" name="type" value="annuel" onChange={handleInputChange} />
+          <input type="radio" name="type" value="Annuel" onChange={handleInputChange} />
           Annual
         </label>
         <label>
-          <input type="radio" name="type" value="maladie" onChange={handleInputChange} />
+          <input type="radio" name="type" value="Sick" onChange={handleInputChange} />
           Sick
         </label>
       </div>

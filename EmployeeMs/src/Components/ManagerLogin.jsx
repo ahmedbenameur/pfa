@@ -23,20 +23,18 @@ const ManagerLogin = () => {
         }
 
         axios.post('http://localhost:3000/manager/manager_login', values)
-            .then(result => {
-                if(result.data.loginStatus){
-                    // Consider using sessionStorage or secure cookies instead
-                    localStorage.setItem("managerId", result.data.id); // Store more meaningful data
-                    navigate('/managerdashboard/' + result.data.id);
-                } else {
-                    setError(result.data.Error);
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                setError('An error occurred. Please try again later.');
-            });
-    };
+        .then(result => {
+            if(result.data.loginStatus){
+              localStorage.setItem("valid", true)
+              navigate('/managerdashboard')
+            }else{
+              setError(result.data.Error)
+            }
+            
+          })
+          .catch(err => console.log(err))
+        }
+    
 
     return (
         <div className='d-flex justify-content-center align-items-center vh-100 loginPage'>
