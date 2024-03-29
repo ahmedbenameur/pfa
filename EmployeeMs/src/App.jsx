@@ -41,6 +41,7 @@ import TasksVisualization from './Components/TasksVisualization'
 import Productivité from './Components/Productivité'
 import TaskEmployee from './Components/TaskEmployee'
 import LeavesCalendar from './Components/LeavesCalendar'
+import EditEntryForm from './Components/EditEntryForm'
 
 
 
@@ -81,11 +82,12 @@ function App() {
   <Route path='/employeedashboard/:id/employee_detail/:id' element={<EmployeeDetail />} />
   <Route path='/employeedashboard/:id/employee_conge/:id' element={<EmployeeConge />} />
   <Route path='/employeedashboard/:id/employee_sortie/:id' element={<EmployeeSortie />} />
-  <Route path='/employeedashboard/:id/WorkTimeTracking/:id' element={<WorkTimeTracking />} />
+  <Route path='/employeedashboard/:id/WorkTimeTracking' element={<WorkTimeTracking />} />
   <Route path='/employeedashboard/:id/employee_surveyquestion/:questionId' element={<SurveyQuestion />} />
   <Route path='/employeedashboard/:id/employee_demande_conge' element={<Employeedemandeconge />} /> 
   <Route path='/employeedashboard/:id/employee_demande_sortie' element={<EmployeeDemandeSortie />} /> 
   <Route path='/employeedashboard/:id/employee_task/:employeeID' element={<TaskEmployee/>} /> 
+  <Route path='/employeedashboard/:id/edit_entry/:entryId' element = {<EditEntryForm/> }/>
   
 </Route>
 

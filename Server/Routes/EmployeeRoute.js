@@ -247,4 +247,117 @@ router.put('/tasks/:taskId/status', async (req, res) => {
     res.status(500).json({ success: false, message: "Erreur serveur lors de la mise à jour du statut de la tâche." });
   }
 });
+
+
+router.post('/clock-in', (req, res) => {
+  const currentTime = new Date().toISOString(); // Utiliser toISOString
+
+  const checkEntryQuery = 'SELECT * FROM time_entries WHERE employee_id = ? AND DATE = CURDATE()';
+  con.query(checkEntryQuery, [req.body.employee_id], (err, result) => {
+    if (err) {
+      console.error('Erreur lors de la vérification du pointage:', err);
+      return res.status(500).json({ Status: false, Error: "Erreur lors de la vérification du pointage." });
+    }
+
+    if (result.length > 0) {
+      return res.status(400).json({ Status: false, Error: "Vous avez déjà enregistré un pointage aujourd'hui." });
+    } else {
+      const insertEntryQuery = 'INSERT INTO time_entries (employee_id, start_time, date) VALUES (?, now(), CURDATE())';
+      con.query(insertEntryQuery, [req.body.employee_id, currentTime], (err, result) => {
+        if (err) {
+          console.error('Erreur lors de l\'enregistrement du pointage:', err);
+          return res.status(500).json({ Status: false, Error: "Erreur lors de l'enregistrement du pointage." });
+        }
+        return res.status(200).json({ Status: true, Message: "Pointage enregistré avec succès." });
+      });
+    }
+  });
+});
+
+router.post('/clock-out', (req, res) => {
+  const currentTime = new Date().toISOString();
+
+  const updateEntryQuery = 'UPDATE time_entries SET end_time = now()  WHERE employee_id = ? AND end_time IS NULL';
+  con.query(updateEntryQuery, [req.body.employee_id, currentTime], (err, result) => {
+    if (err) {
+      console.error('Erreur lors de la mise à jour du pointage de sortie:', err);
+      return res.status(500).json({ Status: false, Error: "Erreur lors de la mise à jour du pointage de sortie.", Details: err });
+    }
+    if (result.affectedRows === 0) {
+      // Aucun enregistrement trouvé à mettre à jour
+      return res.status(400).json({ Status: false, Error: "Aucun pointage d'entrée correspondant n'a été trouvé pour mettre à jour." });
+    }
+    // Mise à jour réussie
+    return res.status(200).json({ Status: true, Message: "Pointage de sortie enregistré avec succès." });
+  });
+});
+
+router.post('/hours-worked', (req, res) => {
+  const calculateHoursWorkedQuery = `
+    UPDATE time_entries 
+    SET hours_worked = TIMESTAMPDIFF(HOUR, start_time, end_time) - 2 
+    WHERE hours_worked IS NULL;`;
+
+  con.query(calculateHoursWorkedQuery, (err, result) => {
+    if (err) {
+      console.error('Erreur lors du calcul des heures de travail:', err);
+      return res.status(500).json({ Status: false, Error: "Erreur lors du calcul des heures de travail." });
+    }
+
+    const affectedRows = result.affectedRows || 0;
+    return res.status(200).json({ Status: true, Message: `${affectedRows} entrées de temps mises à jour avec succès.` });
+  });
+});
+
+
+
+
+router.get('/time-entries', (req, res) => {
+  const employeeId = req.query.employee_id; // Récupérer l'ID de l'employé depuis les paramètres de requête
+  
+  const getEntriesQuery = 'SELECT * FROM time_entries WHERE employee_id = ?';
+  con.query(getEntriesQuery, [employeeId], (err, result) => {
+    if (err) {
+      console.error('Erreur lors de la récupération des pointages:', err);
+      return res.status(500).json({ Status: false, Error: "Erreur lors de la récupération des pointages." });
+    }
+    return res.status(200).json({ Status: true, Result: result });
+  });
+});
+
+
+router.get('/timeentries/:entryId', (req, res) => {
+  const { entryId } = req.params;
+  const getEntryQuery = 'SELECT * FROM time_entries WHERE id = ?';
+  con.query(getEntryQuery, [entryId], (err, result) => {
+    if (err) {
+      console.error('Error fetching time entry:', err);
+      return res.status(500).json({ Status: false, Error: "Error fetching time entry." });
+    }
+    return res.status(200).json({ Status: true, Result: result });
+  });
+});
+
+router.put('/editpointage/:entryId', (req, res) => {
+  const entryId = req.params.entryId;
+  const {  endTime, totalWorked } = req.body;
+
+  console.log('Received data for entry update:', { entryId, endTime, totalWorked });
+
+  const updateQuery = 'UPDATE time_entries SET end_time = ?, hours_worked = ? WHERE id = ?';
+
+  con.query(updateQuery, [ endTime, totalWorked, entryId], (err, result) => {
+    if (err) {
+      console.error('Error updating entry:', err);
+      return res.status(500).json({ status: false, error: 'Error updating entry.' });
+    }
+    return res.status(200).json({ status: true, message: 'Entry updated successfully.' });
+  });
+});
+
+
+
+
+
+
   export {router as EmployeeRouter}
