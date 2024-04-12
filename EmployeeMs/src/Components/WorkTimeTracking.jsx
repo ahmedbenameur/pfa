@@ -89,6 +89,8 @@ const WorkTimeTracking = () => {
       <h2 style={{ color: "#007bff", marginBottom: "30px" }}>
         Work Time Tracking
       </h2>
+      <Link to={`/employeedashboard/${id}/manualtimeentry`} className='btn btn-success'>
+add      </Link>
       <div>
         <div>
           <strong>Start Time:</strong> {startTime || "Not clocked in"}

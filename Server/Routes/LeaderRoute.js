@@ -290,6 +290,99 @@ router.put('/update_sortie_status/:id', async (req, res) => {
     });
 });
 
+router.get("/deplacements", (req, res) => {
+    const sql = `
+      SELECT 
+          deplacement.id,
+          employee.name AS employeeName,
+          deplacement.departure_date,
+          deplacement.return_date,
+          deplacement.destination,
+          deplacement.reason,
+          deplacement.status
+      FROM 
+          deplacement
+      LEFT JOIN  
+          employee ON deplacement.employee_id = employee.id
+    `;
   
+    con.query(sql, (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error retrieving deplacements");
+      }
+      res.status(200).json(result);
+    });
+  });
+  
+  router.put("/deplacements/:id", (req, res) => {
+    // Cette route permet de mettre à jour le statut d'une demande de déplacement spécifique
+    const deplacementId = req.params.id;
+    const { status } = req.body;
+  
+    // Assurez-vous d'implémenter la logique de mise à jour du statut dans votre base de données
+  
+    // Exemple de requête SQL fictive pour mettre à jour le statut d'un déplacement
+    const sql = "UPDATE deplacement SET status = ? WHERE id = ?";
+  
+    con.query(sql, [status, deplacementId], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error updating deplacement status");
+      }
+      res.status(200).send("Deplacement status updated successfully");
+    });
+  });
+  
+
+  router.get('/travelCalendar', (req, res) => {
+    const { employee_id, month, year } = req.query;
+
+    // Query SQL pour récupérer les déplacements validés avec le nom de l'employé
+    let sql = `
+        SELECT deplacement.*, employee.name AS employee_name
+        FROM deplacement
+        INNER JOIN employee ON deplacement.employee_id = employee.id
+        WHERE deplacement.status = 'Validated'
+    `;
+
+    let conditions = [];
+    let values = [];
+
+    // Filtre sur l'ID de l'employé si fourni
+    if (employee_id) {
+        conditions.push(`deplacement.employee_id = ?`);
+        values.push(employee_id);
+    }
+
+    // Filtre sur le mois et l'année de la date de départ si fournis
+    if (month && year) {
+        conditions.push(`MONTH(deplacement.departure_date) = ? AND YEAR(deplacement.departure_date) = ?`);
+        values.push(month, year);
+    }
+
+    // Ajout des conditions à la requête SQL si nécessaire
+    if (conditions.length > 0) {
+        sql += ` AND ${conditions.join(' AND ')}`;
+    }
+
+    // Exécution de la requête SQL
+    con.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Erreur lors de la récupération du calendrier des déplacements:', err);
+            return res.status(500).json({ Status: false, Error: "Query Error" });
+        }
+        res.json({ Status: true, Result: result });
+    });
+});
+
+
+
+
+
+
+
+
+
 
   export {router as LeaderRouter}

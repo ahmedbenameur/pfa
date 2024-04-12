@@ -1,0 +1,67 @@
+.absence-presence-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .select-container {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row; /* Afficher les éléments en ligne */
+  }
+  
+  .select-container select {
+    width: 200px;
+    padding: 8px;
+    font-size: 1rem;
+    margin-right: 10px;
+  }
+  
+  .table-container {
+    display: flex;
+    flex-direction: row; /* Afficher le tableau horizontalement */
+    overflow-x: auto; /* Ajouter une barre de défilement horizontale si nécessaire */
+  }
+  
+  table {
+    width: auto;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center; /* Aligner le texte au centre des cellules */
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+  td.absent {
+    color: red;
+  }
+  .status-cell {
+    text-align: center;
+  }
+  
+  .absent-dot {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    border-radius: 50%;
+  }
+  
+  .present-dot {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: green;
+    border-radius: 50%;
+  }
+  

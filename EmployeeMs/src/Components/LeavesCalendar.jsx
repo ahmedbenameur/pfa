@@ -3,46 +3,61 @@ import axios from 'axios';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import './LeavesCalendar.css';
-import { eachDayOfInterval, parseISO, format } from 'date-fns';
+import { eachDayOfInterval, parseISO } from 'date-fns';
 
 const LeavesCalendar = () => {
-  const [conges, setConges] = useState([]);
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:3000/leader/leaveCalendar')
-      .then(response => {
-        setConges(response.data.Result || []);
+    const fetchLeaves = axios.get('http://localhost:3000/leader/leaveCalendar');
+    const fetchTravels = axios.get('http://localhost:3000/leader/travelCalendar');
+
+    Promise.all([fetchLeaves, fetchTravels])
+      .then(([leavesResponse, travelsResponse]) => {
+        const leavesData = leavesResponse.data.Result || [];
+        const travelData = travelsResponse.data.Result || [];
+
+        // Créer un objet pour compter les occurrences de chaque date
+        const dateCount = {};
+        leavesData.forEach(leave => {
+          eachDayOfInterval({
+            start: parseISO(leave.date_debut),
+            end: parseISO(leave.date_fin)
+          }).forEach(day => {
+            const key = day.toISOString().split('T')[0]; // Utilisez seulement la date, pas le temps
+            dateCount[key] = (dateCount[key] || 0) + 1;
+          });
+        });
+
+        const leaveEvents = leavesData.map(leave => {
+          const sharedDays = eachDayOfInterval({
+            start: parseISO(leave.date_debut),
+            end: parseISO(leave.date_fin)
+          }).some(day => dateCount[day.toISOString().split('T')[0]] > 1);
+
+          return {
+            title: `${leave.employee_name} (Congé)`,
+            start: leave.date_debut,
+            end: leave.date_fin,
+            allDay: true,
+            color: sharedDays ? 'pink' : 'blue' // Rose pour les jours partagés, bleu sinon
+          };
+        });
+
+        const travelEvents = travelData.map(travel => ({
+          title: `${travel.employee_name} (Déplacement: ${travel.destination})`,
+          start: travel.departure_date,
+          end: travel.return_date,
+          allDay: true,
+          color: 'green'
+        }));
+
+        setEvents([...leaveEvents, ...travelEvents]);
       })
       .catch(error => {
-        console.error('There was an error fetching the leave data:', error);
+        console.error('Error fetching data:', error);
       });
   }, []);
-
-  // Suivi du nombre d'employés en congé par jour
-  let dayCounts = {};
-
-  // Première passe pour calculer les jours de congé
-  conges.forEach(conge => {
-    eachDayOfInterval({ start: parseISO(conge.date_debut), end: parseISO(conge.date_fin) })
-      .forEach(day => {
-        const dayStr = format(day, 'yyyy-MM-dd');
-        dayCounts[dayStr] = (dayCounts[dayStr] || 0) + 1;
-      });
-  });
-
-  // Transformation des données de congé pour FullCalendar avec ajustement de la couleur
-  const events = conges.map(conge => {
-    let sharedDays = eachDayOfInterval({ start: parseISO(conge.date_debut), end: parseISO(conge.date_fin) })
-      .some(day => dayCounts[format(day, 'yyyy-MM-dd')] > 1);
-
-    return {
-      title: `${conge.employee_name} (${conge.type})`,
-      start: conge.date_debut,
-      end: conge.date_fin,
-      allDay: true,
-      color: sharedDays ? 'pink' : 'blue', // Jours partagés en rouge, sinon en bleu
-    };
-  });
 
   return (
     <FullCalendar

@@ -88,15 +88,14 @@ router.get("/conges/:employee_id", (req, res) => {
   
 // Ajout d'une route pour récupérer le solde de congé de tous les employés
 
-router.get('/employee-conge-solde/:employee_id', (req, res) => {
+router.get('/employee-conge-solde/:employee_id', async (req, res) => {
   const { employee_id } = req.params;
 
-  // La requête sélectionne la somme de `duree` pour les congés acceptés seulement, groupés par `type`.
+  // La requête sélectionne les dates de début et de fin pour les congés acceptés seulement.
   const sql = `
-    SELECT type, SUM(duree) AS total
+    SELECT type, date_debut, date_fin
     FROM conges
     WHERE employee_id = ? AND statut = 'accepted'
-    GROUP BY type
   `;
 
   con.query(sql, [employee_id], (err, results) => {
@@ -105,14 +104,33 @@ router.get('/employee-conge-solde/:employee_id', (req, res) => {
           return res.status(500).json({ success: false, message: "Erreur lors de la récupération du solde de congé." });
       }
 
-      // Initialisation des totaux à 24 pour chaque type de congé.
       let soldeMaladie = 24;
       let soldeAnnuelle = 24;
 
-      // Soustrait les jours de congé utilisés (acceptés) du total initial.
+      // Fonction pour calculer le nombre de jours ouvrables entre deux dates
+      const getWorkingDays = (date_debut, date_fin) => {
+        let count = 0;
+        const start = new Date(date_debut);
+        const end = new Date(date_fin);
+        let current = new Date(start);
+
+        while (current <= end) {
+          // Les jours de la semaine vont de 0 (dimanche) à 6 (samedi)
+          const dayOfWeek = current.getDay();
+          if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Si ce n'est ni un samedi, ni un dimanche
+            count++;
+          }
+          current.setDate(current.getDate() + 1);
+        }
+
+        return count;
+      };
+
+      // Calcule la durée en jours ouvrables pour chaque congé et décrémente les soldes
       results.forEach(row => {
-        if (row.type === 'Sick') soldeMaladie -= row.total; // Décrémente le solde de maladie
-        else if (row.type === 'Annuel') soldeAnnuelle -= row.total; // Décrémente le solde annuel
+        const days = getWorkingDays(row.date_debut, row.date_fin);
+        if (row.type === 'Sick') soldeMaladie -= days; // Décrémente le solde de maladie
+        else if (row.type === 'Annual') soldeAnnuelle -= days; // Décrémente le solde annuel
       });
 
       // Renvoie les soldes calculés au client
@@ -277,40 +295,65 @@ router.post('/clock-in', (req, res) => {
 router.post('/clock-out', (req, res) => {
   const currentTime = new Date().toISOString();
 
-  const updateEntryQuery = 'UPDATE time_entries SET end_time = now()  WHERE employee_id = ? AND end_time IS NULL';
-  con.query(updateEntryQuery, [req.body.employee_id, currentTime], (err, result) => {
+  const updateEntryQuery = 'UPDATE time_entries SET end_time = now() WHERE employee_id = ? AND end_time IS NULL';
+
+  con.query(updateEntryQuery, [req.body.employee_id], (err, result) => {
     if (err) {
       console.error('Erreur lors de la mise à jour du pointage de sortie:', err);
-      return res.status(500).json({ Status: false, Error: "Erreur lors de la mise à jour du pointage de sortie.", Details: err });
-    }
-    if (result.affectedRows === 0) {
-      // Aucun enregistrement trouvé à mettre à jour
-      return res.status(400).json({ Status: false, Error: "Aucun pointage d'entrée correspondant n'a été trouvé pour mettre à jour." });
-    }
-    // Mise à jour réussie
-    return res.status(200).json({ Status: true, Message: "Pointage de sortie enregistré avec succès." });
-  });
-});
-
-router.post('/hours-worked', (req, res) => {
-  const calculateHoursWorkedQuery = `
-    UPDATE time_entries 
-    SET hours_worked = TIMESTAMPDIFF(HOUR, start_time, end_time) - 2 
-    WHERE hours_worked IS NULL;`;
-
-  con.query(calculateHoursWorkedQuery, (err, result) => {
-    if (err) {
-      console.error('Erreur lors du calcul des heures de travail:', err);
-      return res.status(500).json({ Status: false, Error: "Erreur lors du calcul des heures de travail." });
+      return res.status(500).json({ Status: false, Error: "Erreur lors de la mise à jour du pointage de sortie." });
     }
 
-    const affectedRows = result.affectedRows || 0;
-    return res.status(200).json({ Status: true, Message: `${affectedRows} entrées de temps mises à jour avec succès.` });
+    if (result.affectedRows > 0) {
+      // Effectuez ici le calcul des heures travaillées pour l'entrée mise à jour
+      const calculateHoursQuery = 'UPDATE time_entries SET hours_worked = TIMESTAMPDIFF(HOUR, start_time, end_time) - 1.25 WHERE employee_id = ? AND hours_worked IS NULL';
+      
+      con.query(calculateHoursQuery, [req.body.employee_id], (calcErr, calcResult) => {
+        if (calcErr) {
+          console.error('Erreur lors du calcul des heures travaillées:', calcErr);
+          return res.status(500).json({ Status: false, Error: "Erreur lors du calcul des heures travaillées." });
+        }
+        return res.status(200).json({ Status: true, Message: "Pointage de sortie et calcul des heures travaillées enregistrés avec succès." });
+      });
+    } else {
+      return res.status(400).json({ Status: false, Error: "Aucun pointage d'entrée correspondant n'a été trouvé pour mise à jour." });
+    }
   });
 });
 
 
+router.post('/hours-worked', async (req, res) => {
+  // Assurez-vous que `con` est promisifié ou utilisez une bibliothèque de support de promesses MySQL.
+  
+  // Première étape: Mise à jour préliminaire des heures travaillées en fonction de start_time et end_time
+  const updateHoursWorked = `
+    UPDATE time_entries
+    SET hours_worked = TIMESTAMPDIFF(HOUR, start_time, end_time)
+    WHERE hours_worked IS NULL OR status = 0;`;
 
+  try {
+    await con.promise().query(updateHoursWorked);
+
+    // Deuxième étape: Ajustement des heures travaillées en soustrayant la durée des sorties acceptées
+    const adjustHoursForLeaves = `
+      UPDATE time_entries te
+      INNER JOIN (
+        SELECT employee_id, DATE(date) as sortie_date, SUM(TIMESTAMPDIFF(HOUR, heure_debut, heure_fin)) as total_sortie_hours
+        FROM sorties
+        WHERE status = 'accepted'
+        GROUP BY employee_id, DATE(date)
+      ) as sortie ON te.employee_id = sortie.employee_id AND DATE(te.date) = sortie.sortie_date
+      SET te.hours_worked = GREATEST(0, te.hours_worked - sortie.total_sortie_hours)
+      WHERE te.status = 0;`;
+
+    const [adjustmentResult] = await con.promise().query(adjustHoursForLeaves);
+    const affectedRows = adjustmentResult.affectedRows;
+
+    res.status(200).json({ Status: true, Message: `${affectedRows} time entries adjusted successfully.` });
+  } catch (err) {
+    console.error('Error adjusting hours worked:', err);
+    res.status(500).json({ Status: false, Error: "Error adjusting hours worked." });
+  }
+});
 
 router.get('/time-entries', (req, res) => {
   const employeeId = req.query.employee_id; // Récupérer l'ID de l'employé depuis les paramètres de requête
@@ -356,7 +399,87 @@ router.put('/editpointage/:entryId', (req, res) => {
 });
 
 
+router.post("/deplacements", async (req, res) => {
+  try {
+    // Récupérer les données de la demande de déplacement depuis le corps de la requête
+    const { employeeId, departureDate, returnDate, destination, reason } =
+      req.body;
 
+    // Effectuer la requête pour insérer les données dans la table de déplacement
+    const sql =
+      "INSERT INTO deplacement (employee_id, departure_date, return_date, destination, reason) VALUES (?, ?, ?, ?, ?)";
+
+    await con.query(sql, [
+      employeeId,
+      departureDate,
+      returnDate,
+      destination,
+      reason,
+    ]);
+
+    // Envoyer une réponse en cas de succès
+    res.json({
+      success: true,
+      message: "Demande de déplacement enregistrée avec succès.",
+    });
+  } catch (error) {
+    console.error("Erreur lors de la demande de déplacement :", error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la demande de déplacement.",
+    });
+  }
+});
+
+router.get("/deplacements/:employee_id", (req, res) => {
+  try {
+    const employeeId = req.params.employee_id;
+
+    // Effectuez la requête pour récupérer les congés de l'employé spécifié
+    const sql = "SELECT * FROM deplacement WHERE employee_id = ?";
+    con.query(sql, [employeeId], (err, result) => {
+      if (err) {
+        console.error(
+          "Erreur lors de la récupération des congés de l'employé :",
+          err
+        );
+        return res.status(500).json({
+          success: false,
+          message: "Erreur lors de la récupération des congés de l'employé.",
+        });
+      }
+
+      res.json({ success: true, conges: result });
+    });
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des congés de l'employé :",
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la récupération des congés de l'employé.",
+    });
+  }
+});
+
+
+router.put('/editpointage/:entryId', (req, res) => {
+  const entryId = req.params.entryId;
+  const {  endTime, totalWorked } = req.body;
+
+  console.log('Received data for entry update:', { entryId, endTime, totalWorked });
+
+  const updateQuery = 'UPDATE time_entries SET end_time = ?, hours_worked = ? WHERE id = ?';
+
+  con.query(updateQuery, [ endTime, totalWorked, entryId], (err, result) => {
+    if (err) {
+      console.error('Error updating entry:', err);
+      return res.status(500).json({ status: false, error: 'Error updating entry.' });
+    }
+    return res.status(200).json({ status: true, message: 'Entry updated successfully.' });
+  });
+});
 
 
 

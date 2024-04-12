@@ -56,11 +56,30 @@ const ManagerDashboard = () => {
               <Link to='/managerdashboard/productivité'
                   className="nav-link px-0 align-middle text-white"
                 >
-                  <i className=""></i>
+                   <i className="fs-4 bi-graph-up ms-2"></i>
 
                   <span className="ms-2 d-none d-sm-inline">Productivité</span>
                 </Link>
                 </li>
+                <li className="w-100">
+                <Link
+                  to="WorkTimeCalendar" // Assurez-vous que le chemin correspond à celui défini dans vos routes
+                  className="nav-link px-0 align-middle text-white"
+                >
+                  <i className="bi bi-calendar-event fs-4"></i>
+                  <span className="ms-2 d-none d-sm-inline">WorkTimeCalendar</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/managerdashboard/absence-presence"
+                  className="nav-link px-0 align-middle text-white"
+                >
+    <i className="fs-4 bi-people ms-2"></i>
+
+                  <span className="ms-2 d-none d-sm-inline">Attendance</span>
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

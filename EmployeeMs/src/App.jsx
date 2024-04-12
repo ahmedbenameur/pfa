@@ -42,6 +42,14 @@ import Productivité from './Components/Productivité'
 import TaskEmployee from './Components/TaskEmployee'
 import LeavesCalendar from './Components/LeavesCalendar'
 import EditEntryForm from './Components/EditEntryForm'
+import WorkTimeCalendar from './Components/WorkTimeCalendar'
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import AbsencePresenceVisualization from './Components/AbsencePresenceVisualization'
+import LeaderDeplacement from './Components/LeaderDeplacement'
+import EmployeeDeplacement from './Components/EmployeeDeplacement'
+import EmployeeDemandeDeplacement from './Components/EmployeeDemandeDeplacement'
+import ManualTimeEntry from './Components/ManualTimeEntry'
+
 
 
 
@@ -54,12 +62,14 @@ function App() {
       <Route path='/employee_login' element={<EmployeeLogin />} />
       <Route path='/manager_login' element={<ManagerLogin />} />
       <Route path='/leader_login' element={<LeaderLogin />} />
+      
 
       <Route path='/managerdashboard/*' element={<ManagerDashboard />} >
         <Route path='productivité' element= {< Productivité/>}></Route>
+        <Route path='WorkTimeCalendar' element={<WorkTimeCalendar />} />
+        <Route path='absence-presence' element={<AbsencePresenceVisualization />} />
         </Route>
         
-
   <Route path='/leaderdashboard/*' element={<LeaderDashboard />}  >
   <Route path='project' element={<Project />} />
   <Route path='add_task' element={<AddTask />} />
@@ -71,13 +81,9 @@ function App() {
   <Route path='sorties' element={<SortiesLeader />} />
   <Route path="conges/editleaderconge/:id" element={<EditLeaderConge />} />
   <Route path="sorties/editleadersortie/:id" element={<EditLeaderSortie />} />
+  <Route path='WorkTimeCalendar' element={<WorkTimeCalendar />} />
+  <Route path="LeaderDeplacement" element={<LeaderDeplacement />} />
 </Route>
-
-
-
-
-
-
   <Route path='/employeedashboard/:id' element={<PrivateRoute><EmployeeDashboard /></PrivateRoute>}>
   <Route path='/employeedashboard/:id/employee_detail/:id' element={<EmployeeDetail />} />
   <Route path='/employeedashboard/:id/employee_conge/:id' element={<EmployeeConge />} />
@@ -88,6 +94,9 @@ function App() {
   <Route path='/employeedashboard/:id/employee_demande_sortie' element={<EmployeeDemandeSortie />} /> 
   <Route path='/employeedashboard/:id/employee_task/:employeeID' element={<TaskEmployee/>} /> 
   <Route path='/employeedashboard/:id/edit_entry/:entryId' element = {<EditEntryForm/> }/>
+  <Route path="/employeedashboard/:id/employee_deplacement/:id" element={<EmployeeDeplacement />}  />
+  <Route path="/employeedashboard/:id/employee_demande_deplacement" element={<EmployeeDemandeDeplacement />} />
+  <Route path='/employeedashboard/:id/manualtimeentry' element={<ManualTimeEntry />} />
   
 </Route>
 
@@ -99,11 +108,8 @@ function App() {
         <Route path='' element={<Home />}></Route>
         <Route path='/dashboard/employee' element={<Employee />}></Route>
         <Route path='/dashboard/category' element={<Category />}></Route>
-       
         <Route path='/dashboard/profile' element={<Profile />}></Route>
         <Route path='/dashboard/add_category' element={<AddCategory />}></Route>
-   
-    
         <Route path='/dashboard/add_employee' element={<AddEmployee />}></Route>
         <Route path='/dashboard/edit_employee/:id' element={<EditEmployee />}></Route>
         <Route path='/dashboard/manager' element={<Manager />}></Route>
@@ -111,8 +117,6 @@ function App() {
         <Route path='/dashboard/leader' element={<Leader />}></Route>
         <Route path='/dashboard/add_leader' element={<AddLeader />}></Route>
       </Route>
-
-     
     </Routes>
     </BrowserRouter>
   )

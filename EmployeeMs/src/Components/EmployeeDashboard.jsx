@@ -63,7 +63,7 @@ const EmployeeDashboard = () => {
                   <span className="ms-2 d-none d-sm-inline">Exit Request</span>
                 </Link>
                 <Link
-  to={`/employeedashboard/${employeeId}/WorkTimeTracking/${employeeId}`}
+  to={`/employeedashboard/${employeeId}/WorkTimeTracking`}
   className="nav-link px-0 align-middle text-white"
 >
   <i className="fs-4 bi-clock ms-2"></i>
@@ -86,6 +86,13 @@ const EmployeeDashboard = () => {
                   <span className="ms-2 d-none d-sm-inline">
                     Project Tasks
                   </span>
+                </Link>
+                <Link
+                  to={`/employeedashboard/${employeeId}/employee_deplacement/${employeeId}`}
+                  className="nav-link px-0 align-middle text-white"
+                >
+                  <i className="fs-4 bi-arrow-right-circle ms-2"></i>
+                  <span className="ms-2 d-none d-sm-inline">deplacement</span>
                 </Link>
               </li>
               <li className="w-100" onClick={handleLogout}>

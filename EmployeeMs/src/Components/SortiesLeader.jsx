@@ -32,6 +32,7 @@ const SortiesLeader = () => {
   return (
     <div className="container mt-5 sorties-leader-container">
       <h2>Employee Exits</h2>
+   
       <div className="table-responsive">
         <table className="table table-hover">
           <thead className="table-dark">
