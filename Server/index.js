@@ -9,7 +9,7 @@ import { LeaderRouter } from "./Routes/LeaderRoute.js";
 
 const app = express()
 app.use(cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://192.168.49.2:30000/"],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 
