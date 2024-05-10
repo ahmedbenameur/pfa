@@ -19,7 +19,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                // Build frontend
+                // /Build frontend
                 sh 'cd EmployeeMs && npm run build'
             }
         }
