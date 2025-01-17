@@ -2,7 +2,7 @@ pipeline {
     agent any
     tools {
         maven "maven" // Ensure "maven" is configured in Global Tool Configuration
-         jdk "jdk-17"
+      
     }
     environment {
         DOCKER_REGISTRY = 'ahmedba77777'
@@ -35,7 +35,7 @@ def buildAndPushMicroservice(microserviceName) {
     dir(microserviceName) {
         script {
             // Build with Maven
-            sh "mvn clean install"
+        //    sh "mvn clean install"
 
             // Build and push Docker image
             def dockerImageName = "${DOCKER_REGISTRY}/${microserviceName.toLowerCase()}:latest"
