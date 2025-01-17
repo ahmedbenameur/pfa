@@ -2,6 +2,7 @@ pipeline {
     agent any
     tools {
         maven "maven" // Ensure "maven" is configured in Global Tool Configuration
+         jdk "jdk-17"
     }
     environment {
         DOCKER_REGISTRY = 'ahmedba77777'
