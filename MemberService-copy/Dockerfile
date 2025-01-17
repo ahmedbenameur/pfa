@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy the packaged JAR file into the container
 # Ensure you specify the exact JAR file name or use a build stage to handle it dynamically
-COPY . MemberService.jar
+COPY . MemberService-copy.jar
 
 # Run the application when the container launches
-CMD ["java", "-jar", "MemberService.jar"]
+CMD ["java", "-jar", "MemberService-copy.jar"]
