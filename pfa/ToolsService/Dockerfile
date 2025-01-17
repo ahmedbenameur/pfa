@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-alpine
 WORKDIR /app
 
 # Copy the packaged JAR file into the container
-COPY target/*ToolsService.jar jar
+COPY target/*.jar ToolsService.jar 
 
 # Run the application when the container launches
 CMD ["java", "-jar", "ToolsService.jar"]
