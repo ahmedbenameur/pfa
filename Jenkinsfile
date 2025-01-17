@@ -4,7 +4,7 @@ pipeline {
         maven "maven" // Ensure "maven3" is configured in Global Tool Configuration
     }
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials-id')
+        
         DOCKER_REGISTRY = 'ahmedba77777'
         PROJECT_NAME = 'microservice-springboot'
     }
@@ -45,8 +45,8 @@ def buildAndPushMicroservice(microserviceName) {
             sh "docker build -t ${dockerImageName} ."
 
             // Push to Docker Hub
-            withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
-                sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}"
+            withCredentials([usernamePassword([string(credentialsId: 'dockerhubpwd', variable: 'dockerhubpwd')]) {
+                sh docker login -u ahmedba77777 -p ${dockerhubpwd}
                 sh "docker push ${dockerImageName}"
                 
                 // Run Docker container with specific ports
