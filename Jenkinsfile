@@ -1,10 +1,9 @@
 pipeline {
     agent any
     tools {
-        maven "maven" // Ensure "maven3" is configured in Global Tool Configuration
+        maven "maven" // Ensure "maven" is configured in Global Tool Configuration
     }
     environment {
-        
         DOCKER_REGISTRY = 'ahmedba77777'
         PROJECT_NAME = 'microservice-springboot'
     }
@@ -25,9 +24,7 @@ pipeline {
     post {
         always {
             script {
-                node {
-                    cleanWs() // Ensures it runs within a workspace context
-                }
+                cleanWs() // Ensures it runs within a workspace context
             }
         }
     }
@@ -37,46 +34,45 @@ def buildAndPushMicroservice(microserviceName) {
     dir(microserviceName) {
         script {
             // Build with Maven
-            tool name: 'maven', type: 'maven'
             sh "mvn clean install"
-            
+
             // Build and push Docker image
             def dockerImageName = "${DOCKER_REGISTRY}/${microserviceName.toLowerCase()}:latest"
             sh "docker build -t ${dockerImageName} ."
 
             // Push to Docker Hub
-            withCredentials([usernamePassword([string(credentialsId: 'dockerhubpwd', variable: 'dockerhubpwd')]) {
-                sh docker login -u ahmedba77777 -p ${dockerhubpwd}
+            withCredentials([usernamePassword(credentialsId: 'dockerhubpwd', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}"
                 sh "docker push ${dockerImageName}"
-                
-                // Run Docker container with specific ports
-                def dockerRunCommand = "docker run -d -p "
-                switch (microserviceName) {
-                    case 'ConfigService':
-                        dockerRunCommand += "8888:8888"
-                        break
-                    case 'RegistryService':
-                        dockerRunCommand += "8761:8761"
-                        break
-                    case 'GatewayService':
-                        dockerRunCommand += "9000:9000"
-                        break
-                    case 'EventService':
-                        dockerRunCommand += "8081:8081"
-                        break
-                    case 'MemberService':
-                        dockerRunCommand += "8095:8085"
-                        break
-                    case 'ToolsService':
-                        dockerRunCommand += "8084:8084"
-                        break
-                    case 'ArticleService':
-                        dockerRunCommand += "8082:8082"
-                        break
-                }
-                dockerRunCommand += " ${dockerImageName}"
-                sh dockerRunCommand
             }
+
+            // Run Docker container with specific ports
+            def dockerRunCommand = "docker run -d -p "
+            switch (microserviceName) {
+                case 'ConfigService':
+                    dockerRunCommand += "8888:8888"
+                    break
+                case 'RegistryService':
+                    dockerRunCommand += "8761:8761"
+                    break
+                case 'GatewayService':
+                    dockerRunCommand += "9000:9000"
+                    break
+                case 'EventService':
+                    dockerRunCommand += "8081:8081"
+                    break
+                case 'MemberService':
+                    dockerRunCommand += "8085:8085"
+                    break
+                case 'ToolsService':
+                    dockerRunCommand += "8084:8084"
+                    break;
+                case 'ArticleService':
+                    dockerRunCommand += "8082:8082"
+                    break;
+            }
+            dockerRunCommand += " ${dockerImageName}"
+            sh dockerRunCommand
         }
     }
 }
