@@ -1,16 +1,13 @@
 pipeline {
     agent any
     tools {
-        // Use the installed Maven version
-        maven "maven"
+        maven "maven" // Ensure "maven3" is configured in Global Tool Configuration
     }
-
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials-id')
         DOCKER_REGISTRY = 'ahmedba77777'
         PROJECT_NAME = 'microservice-springboot'
     }
-
     stages {
         stage('Build and Push Microservices') {
             steps {
@@ -25,10 +22,13 @@ pipeline {
             }
         }
     }
-
     post {
         always {
-            cleanWs()
+            script {
+                node {
+                    cleanWs() // Ensures it runs within a workspace context
+                }
+            }
         }
     }
 }
@@ -37,7 +37,7 @@ def buildAndPushMicroservice(microserviceName) {
     dir(microserviceName) {
         script {
             // Build with Maven
-            tool name: 'maven3', type: 'maven'
+            tool name: 'maven', type: 'maven'
             sh "mvn clean install"
             
             // Build and push Docker image
@@ -45,10 +45,10 @@ def buildAndPushMicroservice(microserviceName) {
             sh "docker build -t ${dockerImageName} ."
 
             // Push to Docker Hub
-            withCredentials([usernamePassword(credentialsId: 'dockerhubpwd', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+            withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}"
                 sh "docker push ${dockerImageName}"
-
+                
                 // Run Docker container with specific ports
                 def dockerRunCommand = "docker run -d -p "
                 switch (microserviceName) {
@@ -74,10 +74,7 @@ def buildAndPushMicroservice(microserviceName) {
                         dockerRunCommand += "8082:8082"
                         break
                 }
-                // Add the image name to the run command
                 dockerRunCommand += " ${dockerImageName}"
-                
-                // Run the Docker container
                 sh dockerRunCommand
             }
         }
