@@ -5,8 +5,8 @@ FROM openjdk:17-jdk-alpine
 WORKDIR /app
 
 # Copy the packaged JAR file into the container
-COPY target/*.jar Evenement_service.jar
+COPY target/*.jar EventService.jar
 
 # Run the application when the container launches
-CMD ["java", "-jar", "Evenement_service.jar"]
+CMD ["java", "-jar", "EventService.jar"]
 
