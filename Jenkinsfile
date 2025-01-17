@@ -13,7 +13,7 @@ pipeline {
             steps {
                 script {
                     // List of microservices to build
-                    def microservices = ['ConfigService', 'RegistryService', 'GatewayService', 'MemberService', 'ArticleService', 'ToolsService', 'EventService']
+                    def microservices = ['ConfigService', 'RegistryService', 'GatewayService', 'MemberService-copy', 'ArticleService', 'ToolsService', 'EventService']
 
                     for (def microserviceName in microservices) {
                         buildAndPushMicroservice(microserviceName)
@@ -62,7 +62,7 @@ def buildAndPushMicroservice(microserviceName) {
                 case 'EventService':
                     dockerRunCommand += "8081:8081"
                     break
-                case 'MemberService':
+                case 'MemberService-copy':
                     dockerRunCommand += "8085:8085"
                     break
                 case 'ToolsService':
