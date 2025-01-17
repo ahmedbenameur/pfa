@@ -7,14 +7,11 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials-id')
-       
         DOCKER_REGISTRY = 'ahmedba77777'
         PROJECT_NAME = 'microservice-springboot'
     }
 
     stages {
-       
-
         stage('Build and Push Microservices') {
             steps {
                 script {
@@ -48,8 +45,8 @@ def buildAndPushMicroservice(microserviceName) {
             sh "docker build -t ${dockerImageName} ."
 
             // Push to Docker Hub
-            withCredentials([usernamePassword(credentialsId: 'dockerhubpwd', Variable: 'dockerhubpwd'')]) {
-                sh "docker login -u ahmedba77777 -p ${DOCKER_PASSWORD}"
+            withCredentials([usernamePassword(credentialsId: 'dockerhubpwd', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
                 sh "docker push ${dockerImageName}"
 
                 // Run Docker container with specific ports
@@ -76,7 +73,6 @@ def buildAndPushMicroservice(microserviceName) {
                     case 'ArticleService':
                         dockerRunCommand += "8082:8082"
                         break
-                    // Add cases for other microservices as needed
                 }
                 // Add the image name to the run command
                 dockerRunCommand += " ${dockerImageName}"
