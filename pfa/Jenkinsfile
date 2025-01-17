@@ -1,96 +1,89 @@
 pipeline {
     agent any
-    tools {nodejs "node"}
+    tools {
+        // Use the installed Maven version
+        maven "maven3"
+    }
+
     environment {
-        // Define any environment variables needed for your pipeline
-        NODE_HOME = '/usr/local/bin/node'
-        NPM_HOME = '/usr/local/bin/npm'
+        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials-id')
+       
+        DOCKER_REGISTRY = 'ahmedba77777'
+        PROJECT_NAME = 'microservice-springboot'
     }
 
     stages {
-        stage('Install Dependencies') {
+       
+
+        stage('Build and Push Microservices') {
             steps {
-                // Install backend dependencies
-                sh 'cd Server && npm install'
-                // Install frontend dependencies
-                sh 'cd EmployeeMs && npm install'
-            }
-        }
+                script {
+                    // List of microservices to build
+                    def microservices = ['ConfigService', 'RegistryService', 'GatewayService', 'MemberService', 'ArticleService', 'ToolsService', 'EventService']
 
-        stage('Build') {
-            steps {
-                // /Build frontend
-                sh 'cd EmployeeMs && npm run build'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                // Run backend tests
-               // sh 'cd Server && npm test'
-                // Run frontend tests
-               // sh 'cd EmployeeMs && npm test'
-                sh 'echo testing'
-            }
-        }
-         stage('Build docker image'){
-    steps{
-        script{
-            sh 'cd EmployeeMs && docker build -t ahmedba77777/frontendj .'
-            sh 'cd Server && docker build -t ahmedba77777/backendj .'
-        }
-    }
-}       
-
-         stage('Push image to Hub'){
-            steps{
-                script{
-                   withCredentials([string(credentialsId: 'dockerhubpwd', variable: 'dockerhubpwd')]) {
-                   sh 'docker login -u ahmedba77777 -p ${dockerhubpwd}'
-
-}
-                   sh 'docker push ahmedba77777/backendj:latest'
-                   sh 'docker push ahmedba77777/frontendj:latest'
+                    for (def microserviceName in microservices) {
+                        buildAndPushMicroservice(microserviceName)
+                    }
                 }
             }
         }
-       stage('Move to deploy-app directory') {
-    steps {
-        script {
-            dir('deploy-app') {
-                // Vous pouvez exécuter des commandes spécifiques ici une fois dans le répertoire Server
-            }
-        }
     }
-}
-
-stage('Deploy to k8s') {
-    steps {
-        script {
-            // Assurez-vous que vous êtes dans le bon répertoire pour trouver votre fichier YAML
-            dir('deploy-app') {
-                // Déployer le fichier YAML sur Kubernetes
-                kubernetesDeploy (configs: 'backend-app-deploy.yml', kubeconfigId: 'k8sconfigpwd')
-                kubernetesDeploy (configs: 'react-app-deploy.yml', kubeconfigId: 'k8sconfigpwd')
-                kubernetesDeploy (configs: 'backend-app-service.yml', kubeconfigId: 'k8sconfigpwd')
-                kubernetesDeploy (configs: 'react-app-service.yml', kubeconfigId: 'k8sconfigpwd')
-            }
-        }
-    }
-}
-
-
-    }
-      
 
     post {
-        success {
-            // Actions to be taken if the pipeline succeeds
-            echo 'Pipeline succeeded!'
+        always {
+            cleanWs()
         }
-        failure {
-            // Actions to be taken if the pipeline fails
-            echo 'Pipeline failed!'
+    }
+}
+
+def buildAndPushMicroservice(microserviceName) {
+    dir(microserviceName) {
+        script {
+            // Build with Maven
+            tool name: 'maven3', type: 'maven'
+            sh "mvn clean install"
+            
+            // Build and push Docker image
+            def dockerImageName = "${DOCKER_REGISTRY}/${microserviceName.toLowerCase()}:latest"
+            sh "docker build -t ${dockerImageName} ."
+
+            // Push to Docker Hub
+            withCredentials([usernamePassword(credentialsId: 'dockerhubpwd', Variable: 'dockerhubpwd'')]) {
+                sh "docker login -u ahmedba77777 -p ${DOCKER_PASSWORD}"
+                sh "docker push ${dockerImageName}"
+
+                // Run Docker container with specific ports
+                def dockerRunCommand = "docker run -d -p "
+                switch (microserviceName) {
+                    case 'ConfigService':
+                        dockerRunCommand += "8888:8888"
+                        break
+                    case 'RegistryService':
+                        dockerRunCommand += "8761:8761"
+                        break
+                    case 'GatewayService':
+                        dockerRunCommand += "9000:9000"
+                        break
+                    case 'EventService':
+                        dockerRunCommand += "8081:8081"
+                        break
+                    case 'MemberService':
+                        dockerRunCommand += "8095:8085"
+                        break
+                    case 'ToolsService':
+                        dockerRunCommand += "8084:8084"
+                        break
+                    case 'ArticleService':
+                        dockerRunCommand += "8082:8082"
+                        break
+                    // Add cases for other microservices as needed
+                }
+                // Add the image name to the run command
+                dockerRunCommand += " ${dockerImageName}"
+                
+                // Run the Docker container
+                sh dockerRunCommand
+            }
         }
     }
 }
