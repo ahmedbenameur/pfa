@@ -5,8 +5,8 @@ FROM openjdk:17-jdk-alpine
 WORKDIR /app
 
 # Copy the packaged JAR file into the container
-COPY target/*.jar Config_eureka.jar
+# Ensure you specify the exact JAR file name or use a build stage to handle it dynamically
+COPY . ConfigService.jar
 
 # Run the application when the container launches
-CMD ["java", "-jar", "Config_eureka.jar"]
-
+CMD ["java", "-jar", "ConfigService.jar"]
