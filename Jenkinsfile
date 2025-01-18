@@ -34,8 +34,7 @@ pipeline {
 def buildAndPushMicroservice(microserviceName) {
     dir(microserviceName) {
         script {
-            // Build with Maven
-        //    sh "mvn clean install"
+
 
             // Build and push Docker image
             def dockerImageName = "${DOCKER_REGISTRY}/${microserviceName.toLowerCase()}:latest"
