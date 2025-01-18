@@ -43,7 +43,7 @@ def buildAndPushMicroservice(microserviceName) {
             // Push to Docker Hub
            withCredentials([string(credentialsId: 'dockerhubpwd', variable: 'dockerhubpwd')]) {
                    sh 'docker login -u ahmedba77777 -p ${dockerhubpwd}'
-            //    sh "docker push ${dockerImageName}"
+               sh "docker push ${dockerImageName}"
             }
 
             // Run Docker container with specific ports
